@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Tables {
+  id          String     @id @default(uuid())
+  slug        String     @unique
+  name_uz     String
+  name_ru     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Roles {
+  id            String          @id @default(uuid())
+  name          String          @unique
+  permissions   Permissions[]
+  users         Users[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Permissions {
+  id          String     @id @default(uuid())
+  read        Boolean    @default(false)
+  write       Boolean    @default(false)
+  update      Boolean    @default(false)
+  delete      Boolean    @default(false)
+  roles       Roles      @relation(fields: [role_id], references: [id], onUpdate: Cascade)
+  role_id     String
+  table_id    String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Users {
+  id                String     @id @default(uuid())
+  first_name        String?
+  last_name         String?
+  email             String     @unique
+  phone_number      String     @unique
+  hashed_password   String
+  roles             Roles      @relation(fields: [role_id], references: [id], onUpdate: Cascade)
+  role_id           String
+  active            Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
